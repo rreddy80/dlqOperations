@@ -1,6 +1,7 @@
 package uk.gov.moj.util;
 
-import uk.gov.justice.services.test.utils.core.messaging.DeadLetterQueueBrowser;
+import org.json.JSONObject;
+import uk.gov.moj.DeadLetterQueueBrowser;
 
 import java.util.List;
 
@@ -32,9 +33,7 @@ public class DLQUtil {
 
     private static void logMessages(DeadLetterQueueBrowser deadLetterQueueBrowser) {
         LOGGER.info("Displaying messages in dead letter queue ");
-        List<JsonObject> messages = deadLetterQueueBrowser.browseAsJson();
-        messages.forEach(s -> LOGGER.info(s.toString()));
-        LOGGER.info("Total number of messages in  dead letter queue {} ", messages.size());
+        deadLetterQueueBrowser.browseFullMessages();
     }
 
     public static void logMessagesAndCleanDeadLetterQueue() {

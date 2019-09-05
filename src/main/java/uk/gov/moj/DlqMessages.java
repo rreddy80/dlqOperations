@@ -30,12 +30,16 @@ public class DlqMessages {
         switch(requestedOperation) {
             case "listMessages":
                 logMessagesInDeadletterQueue();
+                break;
             case "removeMessages":
                 cleanDeadLetterQueue();
+                break;
             case "countMessages":
                 getDeadLetterQueueMessageCount();
+                break;
             case "listAndRemove":
                 logMessagesAndCleanDeadLetterQueue();
+                break;
         }
     }
 }
