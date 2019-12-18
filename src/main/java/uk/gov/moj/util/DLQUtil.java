@@ -1,11 +1,8 @@
 package uk.gov.moj.util;
 
-import org.json.JSONObject;
 import uk.gov.moj.DeadLetterQueueBrowser;
 
-import java.util.List;
-
-import javax.json.JsonObject;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +37,12 @@ public class DLQUtil {
         DeadLetterQueueBrowser deadLetterQueueBrowser = new DeadLetterQueueBrowser();
         logMessages(deadLetterQueueBrowser);
         deadLetterQueueBrowser.removeMessages();
+        deadLetterQueueBrowser.close();
+    }
+
+    public static void downloadAllMessages() {
+        DeadLetterQueueBrowser deadLetterQueueBrowser = new DeadLetterQueueBrowser();
+        deadLetterQueueBrowser.downloadFullMessages();
         deadLetterQueueBrowser.close();
     }
 }

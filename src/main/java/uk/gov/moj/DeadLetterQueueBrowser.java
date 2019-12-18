@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.justice.services.test.utils.core.messaging.ConsumerClient;
@@ -14,8 +13,10 @@ import uk.gov.justice.services.test.utils.core.messaging.MessageConsumerExceptio
 import javax.jms.*;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -99,7 +100,26 @@ public class DeadLetterQueueBrowser implements AutoCloseable {
      * @return list of {@link JsonObject}
      */
     public void browseFullMessages() {
-        browseMessages().stream().forEach(msg -> convertMessage(msg));
+        browseMessages().stream().forEach(msg -> LOGGER.info(convertMessage(msg)));
+    }
+
+    /**
+     * allows downloading original messages in dlq to a file
+     *
+     * @return list of {@link JsonObject}
+     */
+    public void downloadFullMessages() {
+        try (final BufferedWriter writer = new BufferedWriter(new FileWriter("dlq-messages.json"))) {
+             browseMessages().stream().forEach(msg -> {
+                 try {
+                     writer.write(convertMessage(msg));
+                 } catch (IOException e) {
+                     e.printStackTrace();
+                 }
+             });
+        } catch (IOException ioe) {
+            LOGGER.error("IOException occurred: {}", ioe);
+        }
     }
 
     /**
@@ -176,13 +196,29 @@ public class DeadLetterQueueBrowser implements AutoCloseable {
         }
     }
 
-    private void convertMessage(final Message source) {
+    private String convertMessage(final Message source) {
         Map coreMessage = ((ActiveMQTextMessage) source).getCoreMessage().toMap();
         String messageBody = ((ActiveMQTextMessage) source).getText();
         coreMessage.put("message", messageBody);
-        LOGGER.info(new JSONObject(coreMessage).toString());
+
+        com.google.gson.JsonObject jsonObject = new com.google.gson.JsonObject();
+        jsonObject.addProperty("durable", coreMessage.get("durable").toString());
+        jsonObject.addProperty("originalQueue", coreMessage.get("_AMQ_ORIG_QUEUE").toString());
+        jsonObject.addProperty("originalAddress", coreMessage.get("_AMQ_ORIG_ADDRESS").toString());
+        jsonObject.addProperty("cppname", coreMessage.get("CPPNAME").toString());
+        jsonObject.addProperty("timestamp", String.valueOf(new java.util.Date((long) coreMessage.get("timestamp"))));
+        jsonObject.addProperty("payload", getDataFromMap("message", coreMessage));
+
+        return jsonObject.toString();
     }
 
+    private String getDataFromMap(final String keyName, final Map givenMessage) {
+        if (givenMessage.containsKey(keyName)) {
+            return givenMessage.get(keyName).toString();
+        } else {
+            return null;
+        }
+    }
     /**
      * clean up resources
      */

@@ -4,6 +4,8 @@ import org.apache.commons.cli.MissingArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 import static uk.gov.moj.util.CommandLineUtil.parseCommandLineOptions;
 import static uk.gov.moj.util.DLQUtil.*;
 
@@ -11,7 +13,7 @@ import static uk.gov.moj.util.DLQUtil.*;
 public class DlqMessages {
     private static final Logger LOGGER = LoggerFactory.getLogger(DlqMessages.class);
 
-    public static void main(final String[] args) throws MissingArgumentException {
+    public static void main(final String[] args) throws MissingArgumentException, IOException {
 
         parseCommandLineOptions(args);
 
@@ -26,7 +28,7 @@ public class DlqMessages {
 
     }
 
-    private static void RunRequestedOperation(String requestedOperation) {
+    private static void RunRequestedOperation(String requestedOperation) throws IOException {
         switch(requestedOperation) {
             case "listMessages":
                 logMessagesInDeadletterQueue();
@@ -39,6 +41,9 @@ public class DlqMessages {
                 break;
             case "listAndRemove":
                 logMessagesAndCleanDeadLetterQueue();
+                break;
+            case "download":
+                downloadAllMessages();
                 break;
         }
     }
