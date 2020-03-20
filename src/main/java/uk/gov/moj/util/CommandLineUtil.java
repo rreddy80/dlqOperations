@@ -57,7 +57,7 @@ public class CommandLineUtil {
                 .desc("Artemis broker host names (as comma separated values)").build();
         final Option request = builder("o").longOpt("operation").required(false)
                 .hasArg()
-                .desc("ex: listMessages | removeMessages | countMessages | listAndRemove")
+                .desc("ex: listMessages | removeMessages | countMessages | listAndRemove | download")
                 .build();
         final Option help = builder("h").longOpt("help").required(false).desc("Help information").build();
 

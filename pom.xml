@@ -6,7 +6,7 @@
 
     <groupId>uk.gov.moj</groupId>
     <artifactId>dlq-operations</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
 
     <properties>
         <additional-locale-parameter>-Djava.locale.providers=CLDR</additional-locale-parameter>
